@@ -1,0 +1,17 @@
+{
+  "id": "./",
+  "name": "CET-6 Master · 六级翻译训练",
+  "short_name": "CET-6 Master",
+  "description": "大学英语六级碎片化翻译练习、AI批改与词汇复习工具",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f8fafc",
+  "theme_color": "#4f46e5",
+  "icons": [
+    { "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
