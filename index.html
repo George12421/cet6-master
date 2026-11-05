@@ -932,6 +932,47 @@ body {
     line-height: 1.65;
   }
 }
+/* 题目状态提示与操作按钮同一行 */
+.topic-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.topic-actions .topic-status {
+  flex: 1 1 180px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.topic-actions button {
+  flex-shrink: 0;
+}
+
+/* 横屏平板进一步压缩间距 */
+@media (orientation: landscape) and (min-width: 900px) {
+  #topicCard .topic-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  #topicCard .topic-status {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    font-size: 12px;
+  }
+}
 
 </style>
 </head>
@@ -1008,12 +1049,13 @@ body {
       </label>
     </div>
 
-    <div class="topic-status" id="topicStatus"></div>
+
 
     <textarea class="topic-body" id="topicBody"
       placeholder="随机中文练习题将在这里显示..."></textarea>
 
     <div class="topic-actions">
+      <div class="topic-status" id="topicStatus"></div>
       <button class="btn-topic" id="btnRefreshTopic">AI 随机出题</button>
       <button class="btn-topic" id="btnOfflineTopic">离线题库</button>
       <button class="btn-primary" id="btnConfirmTopic"
