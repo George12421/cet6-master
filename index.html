@@ -206,6 +206,73 @@ body {
   outline: none; resize: vertical; transition: border-color 0.2s;
 }
 .translation-input-card textarea:focus { border-color: var(--primary); }
+  /* M-Pencil 友好的多行单行输入区域 */
+.translation-lines {
+  width: 100%;
+  min-height: 180px;
+  padding: 10px 14px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.translation-line-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  border-bottom: 1px solid var(--border);
+}
+
+.translation-line-row:last-child {
+  border-bottom: none;
+}
+
+.translation-line-number {
+  flex: 0 0 24px;
+  text-align: right;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.translation-line-input {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  padding: 8px 4px;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.8;
+  font-family: inherit;
+}
+
+.translation-line-input:focus {
+  background: #fafbfc;
+}
+
+.translation-lines:focus-within {
+  border-color: var(--primary);
+}
+
+.translation-line-tools {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.translation-line-hint {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
 
 .ti-actions {
   display: flex; justify-content: space-between; align-items: center;
@@ -755,15 +822,22 @@ body {
     <div class="ti-header">
       <h2>你的翻译</h2>
     </div>
-    <textarea
+    <div class="translation-lines" id="translationLines"></div>
+
+<div class="translation-line-tools">
+  <span class="translation-line-hint">
+    使用 M-Pencil 逐行书写英文，可添加更多行
+  </span>
+  <button type="button" class="btn-sm" id="btnAddTranslationLine">
+    + 添加一行
+  </button>
+</div>
+
+<textarea
   id="translationInput"
-  rows="6"
-  inputmode="text"
-  autocomplete="off"
-  autocorrect="off"
-  autocapitalize="sentences"
-  spellcheck="false"
-  placeholder="用 M-Pencil 手写，或使用键盘输入英文译文..."
+  style="display:none"
+  aria-hidden="true"
+  tabindex="-1"
 ></textarea>
     <div class="ti-actions">
       <span style="font-size:13px;color:var(--text-secondary)" id="wordCountDisplay">0 words</span>
@@ -1179,10 +1253,143 @@ const $transFavCnt = document.getElementById('transFavCount');
 const $favSearch = document.getElementById('favSearch');
 const $favListContainer = document.getElementById('favListContainer');
 const $translationInput = document.getElementById('translationInput');
+const $translationLines = document.getElementById('translationLines');
 const $wordCountDisplay = document.getElementById('wordCountDisplay');
 const $referenceAnswer = document.getElementById('referenceAnswer');
 const $referenceAnswerBody = document.getElementById('referenceAnswerBody');
 const $reviewLoading = document.getElementById('reviewLoading');
+// ==================== M-Pencil 多行手写输入 ====================
+
+// 获取所有单行输入框
+function getTranslationLineInputs() {
+  return Array.from(
+    $translationLines.querySelectorAll('.translation-line-input')
+  );
+}
+
+// 创建一个新的单行输入框
+function addTranslationLine(value = '') {
+  const index = getTranslationLineInputs().length + 1;
+
+  const row = document.createElement('div');
+  row.className = 'translation-line-row';
+
+  const number = document.createElement('span');
+  number.className = 'translation-line-number';
+  number.textContent = index + '.';
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'translation-line-input';
+  input.placeholder = index === 1
+    ? '用 M-Pencil 手写英文...'
+    : '继续写下一行...';
+
+  input.setAttribute('inputmode', 'text');
+  input.setAttribute('autocomplete', 'off');
+  input.setAttribute('autocorrect', 'off');
+  input.setAttribute('autocapitalize', 'sentences');
+  input.spellcheck = false;
+  input.value = value;
+
+  row.appendChild(number);
+  row.appendChild(input);
+  $translationLines.appendChild(row);
+
+  return input;
+}
+
+// 将所有单行输入框合并到原来的隐藏 textarea
+function syncTranslationLines() {
+  const text = getTranslationLineInputs()
+    .map(input => input.value.trim())
+    .filter(Boolean)
+    .join('\n');
+
+  $translationInput.value = text;
+
+  const count = text
+    ? text.split(/[^a-zA-Z'-]+/).filter(Boolean).length
+    : 0;
+
+  $wordCountDisplay.textContent = count + ' words';
+}
+
+// 将已经保存的译文拆分成适合单行输入框的内容
+function splitTranslationIntoLines(text) {
+  const result = [];
+
+  String(text || '').split(/\r?\n/).forEach(paragraph => {
+    const words = paragraph.trim().split(/\s+/).filter(Boolean);
+    let current = '';
+
+    words.forEach(word => {
+      const candidate = current
+        ? current + ' ' + word
+        : word;
+
+      if (current && candidate.length > 45) {
+        result.push(current);
+        current = word;
+      } else {
+        current = candidate;
+      }
+    });
+
+    if (current) result.push(current);
+  });
+
+  return result;
+}
+
+// 设置译文，同时更新前台和后台数据
+function setTranslationText(text) {
+  const lines = splitTranslationIntoLines(text);
+
+  $translationLines.innerHTML = '';
+
+  const total = Math.max(6, lines.length);
+
+  for (let i = 0; i < total; i++) {
+    addTranslationLine(lines[i] || '');
+  }
+
+  syncTranslationLines();
+}
+
+// 输入内容发生变化时，自动同步
+$translationLines.addEventListener('input', event => {
+  if (!event.target.matches('.translation-line-input')) return;
+  syncTranslationLines();
+});
+
+// 按 Enter 自动跳到下一行
+$translationLines.addEventListener('keydown', event => {
+  if (!event.target.matches('.translation-line-input')) return;
+  if (event.key !== 'Enter') return;
+
+  event.preventDefault();
+
+  const inputs = getTranslationLineInputs();
+  const index = inputs.indexOf(event.target);
+
+  if (index < inputs.length - 1) {
+    inputs[index + 1].focus({ preventScroll: true });
+  } else {
+    const next = addTranslationLine('');
+    next.focus({ preventScroll: true });
+  }
+});
+
+// 点击按钮增加一行
+document.getElementById('btnAddTranslationLine')
+  .addEventListener('click', () => {
+    const input = addTranslationLine('');
+    input.focus({ preventScroll: true });
+  });
+
+// 页面初始化：创建6行输入框
+setTranslationText('');
 
 // ==================== 翻译题目 ====================
 let curTopic = null; // { chinese: string, reference: string | null }
@@ -1333,7 +1540,7 @@ function renderTopic() {
 }
 
 function resetPracticeState() {
-  $translationInput.value = '';
+  setTranslationText('');
   $wordCountDisplay.textContent = '0 words';
   $reviewCard.style.display = 'none';
   $reviewLoading.classList.remove('active');
@@ -1832,8 +2039,15 @@ async function loadWrongQuestion(id) {
   confirmBtn.style.opacity = topicConfirmed ? '0.6' : '1';
   updateTopicButtonLabel();
   updateFeatureButtons();
-  document.getElementById('translationInput').value = '';
-  document.getElementById('translationInput').focus({ preventScroll: true });
+  setTranslationText('');
+
+  const firstLine = $translationLines.querySelector(
+    '.translation-line-input'
+  );
+  
+  if (firstLine) {
+    firstLine.focus({ preventScroll: true });
+  }
   document.getElementById('topicCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
   toast('已载入错题，请重新翻译');
 }
@@ -1944,8 +2158,7 @@ function viewTransFav(id) {
   $confirmBtn2.textContent = '已确认';
   $confirmBtn2.disabled = true;
   $confirmBtn2.style.opacity = '0.6';
-  $translationInput.value = f.userTranslation || '';
-  $wordCountDisplay.textContent = ($translationInput.value.split(/[^a-zA-Z'-]+/).filter(w => w.length > 0).length) + ' words';
+  setTranslationText(f.userTranslation || '');
   curReview = f.review;
   if (f.review) {
     renderReview(f.review);
