@@ -755,7 +755,16 @@ body {
     <div class="ti-header">
       <h2>你的翻译</h2>
     </div>
-    <textarea id="translationInput" placeholder="在这里输入你的英文译文..."></textarea>
+    <textarea
+  id="translationInput"
+  rows="6"
+  inputmode="text"
+  autocomplete="off"
+  autocorrect="off"
+  autocapitalize="sentences"
+  spellcheck="false"
+  placeholder="用 M-Pencil 手写，或使用键盘输入英文译文..."
+></textarea>
     <div class="ti-actions">
       <span style="font-size:13px;color:var(--text-secondary)" id="wordCountDisplay">0 words</span>
       <div class="ti-right">
