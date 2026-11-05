@@ -1,96 +1,68 @@
-# CET-6 Master · 六级写作与翻译训练
+# CET-6 Master · 六级翻译训练
 
-基于原版 CET-6 翻译助手进行的第一阶段改造，保留原有 AI 四维批改、提示搜索、智能查词、词汇收藏和翻译收藏，并增加适合安卓平板的碎片化练习、本地学习档案和 PWA 安装能力。
+一个基于 AI 的英语六级（CET-6）翻译练习工具，支持随机出题、智能批改、词汇积累和个人学习记录。
 
-## 第一阶段功能
+**在线体验：** https://george12421.github.io/cet6-master/
 
-- **随机碎片化汉译英**：短句（5–15 字）、中句（15–35 字）、长句（35–60 字）和短段落（80–120 字）四档长度；支持科技、教育、文化、经济、环境、健康等主题。
-- **离线内置题库**：内置 20 道原创练习题，断网时可练习并查看参考译文；AI 出题失败时也可手动切换离线题库。
-- **多模型分工**：兼容硅基流动及 OpenAI-compatible Chat Completions 接口；可分别配置出题、参考译文、批改、词汇分析和提示搜索模型。
-- **Hunyuan 翻译模式**：默认将 `tencent/Hunyuan-MT-7B` 用作参考译文模型，只要求输出译文，不再要求它生成 JSON；出题和批改默认交给通用指令模型。
-- **AI 四维批改**：语法纠错、词汇升级、句式优化、逐句对比；额外生成 3–5 个值得积累的六级词汇/短语、释义、搭配和例句。
-- **错题复习**：低分或存在明显问题的练习进入错题本；按 1、3、7、15、30 天间隔安排复习，连续掌握后标记完成。
-- **本地学习档案**：练习记录、错题和词汇表达优先保存在 IndexedDB；不需要账号或自建数据库。浏览器不支持 IndexedDB 时回退到 localStorage。
-- **数据备份恢复**：导出/导入收藏、练习记录、错题和词汇本。为避免密钥泄露，新的备份不包含 API Key。
-- **安卓平板适配**：触屏按钮、较大的输入区域、响应式布局。
-- **PWA**：可从 HTTPS 网站安装到安卓桌面；缓存应用壳和内置题库，支持离线打开及离线练习。
+## ✨ 主要功能
 
-## 快速开始（本地预览）
+- **随机练习：** 支持短句、中句、长句和段落翻译，涵盖多个六级常见主题。
+- **AI 出题：** 自动生成中文翻译题，提供英文参考译文。
+- **智能批改：** 从语法、词汇、句式和翻译准确性等方面分析译文。
+- **词汇学习：** 查询单词、积累高级词汇、固定搭配和例句。
+- **错题与收藏：** 保存练习记录、错题及重点词汇。
+- **数据备份：** 支持学习数据 JSON 导出与导入。
+- **平板适配：** 优化安卓平板横屏布局及 M-Pencil 手写输入体验。
 
-这是纯静态网页，不需要安装 Node.js、Python、数据库或 CUDA。
+## 🤖 AI 模型配置
 
-1. 解压项目。
-2. 推荐使用 VS Code 的 Live Server 扩展启动，或在项目目录运行：
+支持硅基流动（SiliconFlow）及兼容 OpenAI API 格式的模型服务。
 
-   ```bash
-   python -m http.server 8000
-   ```
+可分别配置出题、翻译、批改、词汇分析和提示搜索模型。
 
-3. 电脑浏览器访问 `http://localhost:8000`。
-4. 填写硅基流动 API Key，并在“模型与接口设置”中确认接口地址和模型 ID。
-5. 选择题目长度和主题，点击“AI 随机出题”；也可以点击“离线题库”。
+用户需要自行提供 API Key，并承担相应的模型调用费用。
 
-> 双击 `index.html` 也能使用大部分页面功能，但浏览器通常不会在 `file://` 协议下注册 Service Worker，因此无法体验 PWA 安装和完整离线缓存。PWA 需要 HTTPS（例如 GitHub Pages）或 localhost。
+硅基流动 API 地址：
 
-## 硅基流动配置
+`https://api.siliconflow.cn/v1/chat/completions`
 
-默认配置：
+## 💾 数据存储
 
-| 配置项 | 默认值 |
-|---|---|
-| API 地址 | `https://api.siliconflow.cn/v1/chat/completions` |
-| 出题模型 | `deepseek-ai/DeepSeek-V3.2` |
-| 参考译文模型 | `tencent/Hunyuan-MT-7B` |
-| 翻译批改模型 | `deepseek-ai/DeepSeek-V3.2` |
-| 词汇分析模型 | `deepseek-ai/DeepSeek-V3.2` |
-| 提示搜索模型 | `deepseek-ai/DeepSeek-V3.2` |
+- 使用 IndexedDB 和 localStorage 保存个人学习数据及配置。
+- 学习记录保存在当前设备的浏览器中，不会自动同步到其他设备。
+- 支持 JSON 数据备份与恢复。
+- 清理浏览器数据前，请先导出备份。
 
-模型 ID 以硅基流动控制台中当前可用的名称为准。若账号没有某个模型权限，请在网页设置中换成账号可用的模型。参考译文模型按“纯翻译”方式调用，不会被要求输出 JSON；因此适合 Hunyuan-MT 这类专用翻译模型。
+## 🚀 使用方法
 
-## 部署到 GitHub Pages（推荐用于安卓平板）
+直接访问在线网站：
 
-1. 在 GitHub 新建自己的仓库，例如 `cet6-master`。
-2. 将本目录中的全部文件上传到仓库根目录，确保 `index.html`、`manifest.json`、`sw.js` 和 `icons/` 在同一级。
-3. 打开仓库 **Settings → Pages**。
-4. 在 **Build and deployment** 中选择 **Deploy from a branch**，分支选 `main`，目录选 `/ (root)`，保存。
-5. 等待 GitHub Pages 发布，使用生成的 HTTPS 地址在安卓平板 Chrome 中打开。
-6. Chrome 菜单选择 **安装应用** 或 **添加到主屏幕**。
+https://george12421.github.io/cet6-master/
 
-首次打开时需要联网加载页面并注册 Service Worker。之后可以离线打开应用、练习内置题库和查看已保存记录。AI 出题、AI 批改、查词仍需要联网。
+也可以下载源码，通过本地 HTTP 服务运行。
 
-## 数据保存与隐私
+本项目无需单独部署后端服务器。
 
-- API Key、接口地址和模型配置保存在当前浏览器的 localStorage。
-- 练习记录、错题和词汇本优先保存在当前浏览器的 IndexedDB。
-- 这些数据不会自动同步到其他设备；清除浏览器数据或卸载应用可能导致本地数据丢失，请定期导出 JSON 备份。
-- 导出的新版本备份不包含 API Key。不要将 API Key 写入源码或提交到公开 GitHub 仓库。
-- 使用 AI 功能时，当前题目、译文或查询文本会发送给你配置的模型服务商处理。
-- 本项目为静态前端直连 API。若浏览器提示 CORS/跨域错误，需要为模型请求增加轻量代理；不要将 API Key 放在公开代理或公开代码中。
+## 🛠️ 技术栈
 
-## 原有功能保留
+- HTML5
+- CSS3
+- JavaScript
+- IndexedDB
+- localStorage
+- PWA
+- OpenAI-compatible API
 
-- AI 提示搜索（不给完整答案的方向性提示）
-- 四维翻译批改与逐句对比
-- 智能查词、音标、词形和作文例句
-- 原有词汇收藏和翻译收藏
-- 收藏置顶、删除、搜索和导入导出
+## 🙏 项目来源与致谢
 
-## 项目文件
+本项目基于 [jmdonbaba/Cet6Translation](https://github.com/jmdonbaba/Cet6Translation) 进行二次开发。
 
-```text
-Cet6Translation-main/
-├── index.html          # 主应用（HTML/CSS/JavaScript）
-├── manifest.json       # PWA 安装信息
-├── sw.js               # Service Worker 与离线缓存
-├── icons/
-│   ├── icon-192.png
-│   └── icon-512.png
-├── tests/              # 原项目测试
-└── README.md
-```
+感谢原作者提供的基础代码和功能设计。
 
-## 许可
+本仓库由 [George12421](https://github.com/George12421) 维护，在原项目基础上增加和优化了随机练习、多模型 API 配置、学习记录、数据备份及平板使用体验等功能。如果喜欢可以加个⭐哦，感谢。
 
-本项目保留原仓库 MIT License 文件。新增的原创离线练习题和本阶段改造代码随项目提供；如基于原项目继续分发，请保留原作者版权和许可声明。
+## 📄 许可证
 
-GitHub Pages deployment test.
+本项目沿用原项目的 MIT License。
+
+保留原作者版权声明及许可证文件，详见 [LICENSE](./LICENSE)。
