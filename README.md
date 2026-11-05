@@ -92,3 +92,5 @@ Cet6Translation-main/
 ## 许可
 
 本项目保留原仓库 MIT License 文件。新增的原创离线练习题和本阶段改造代码随项目提供；如基于原项目继续分发，请保留原作者版权和许可声明。
+
+GitHub Pages deployment test.
