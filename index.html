@@ -737,6 +737,202 @@ body {
   .review-tab { flex: 0 0 auto; }
 }
 
+/* ==================== MatePad 横屏学习布局 ==================== */
+
+.answer-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.answer-card-header h2 {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.answer-placeholder {
+  padding: 12px;
+  color: var(--text-secondary);
+  background: #f8fafc;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* 仅在平板横屏时启用双栏 */
+@media (orientation: landscape) and (min-width: 900px) {
+
+  .container {
+    max-width: 1500px;
+    padding: 8px 16px 24px;
+  }
+
+  .header {
+    padding: 6px 0 10px;
+  }
+
+  .header h1 {
+    font-size: 24px;
+  }
+
+  .header p {
+    font-size: 12px;
+  }
+
+  .key-area {
+    margin-top: 6px;
+  }
+
+  .ai-settings {
+    margin-top: 6px;
+    padding: 8px 12px;
+  }
+
+  .header-extra-actions {
+    margin-top: 4px;
+  }
+
+  /* 三块区域布局 */
+  .practice-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1.1fr) minmax(0, 0.9fr);
+
+    grid-template-areas:
+      "topic translation"
+      "answer translation";
+
+    gap: 12px;
+
+    height: calc(100vh - 170px);
+    height: calc(100dvh - 170px);
+    min-height: 460px;
+  }
+
+  .practice-layout > .card {
+    margin-bottom: 0;
+    padding: 14px;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  /* 左上：题目 */
+  #topicCard {
+    grid-area: topic;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  #topicCard .topic-header {
+    margin-bottom: 8px;
+  }
+
+  #topicCard .topic-toolbar {
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  #topicCard .topic-status {
+    margin-bottom: 6px;
+    min-height: 0;
+  }
+
+  #topicCard .topic-body {
+    flex: 1;
+    min-height: 80px;
+    height: auto;
+    resize: none;
+    padding: 10px 12px;
+    line-height: 1.65;
+  }
+
+  #topicCard .topic-actions {
+    margin-top: 8px;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  #topicCard .topic-actions button {
+    min-height: 36px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+
+  /* 右侧：手写翻译 */
+  #translationCard {
+    grid-area: translation;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  #translationCard .ti-header {
+    margin-bottom: 8px;
+  }
+
+  #translationCard .translation-lines {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  #translationCard .translation-line-row {
+    min-height: 44px;
+    flex-shrink: 0;
+  }
+
+  #translationCard .translation-line-tools {
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+
+  #translationCard .ti-actions {
+    margin-top: 8px;
+    flex-shrink: 0;
+  }
+
+  #translationCard .ti-right {
+    margin-left: auto;
+  }
+
+  #translationCard #reviewLoading {
+    flex-shrink: 0;
+    padding: 10px;
+  }
+
+  /* 左下：参考译文 */
+  #answerCard {
+    grid-area: answer;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  #answerCard .answer-placeholder {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  #answerCard .reference-answer {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    margin-top: 0;
+    padding: 10px 12px;
+  }
+
+  #answerCard .ra-body {
+    font-size: 14px;
+    line-height: 1.65;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -781,12 +977,15 @@ body {
     </div>
   </div>
 
-  <!-- 翻译题目 -->
+<div class="practice-layout" id="practiceLayout">
+
+  <!-- 左上：翻译题目 -->
   <div class="card topic-card-full" id="topicCard">
     <div class="topic-header">
       <h2>翻译题目</h2>
       <button class="btn-favorite" id="btnSaveTranslation" disabled>收藏</button>
     </div>
+
     <div class="topic-toolbar">
       <label>练习长度
         <select id="practiceLength">
@@ -808,53 +1007,78 @@ body {
         </select>
       </label>
     </div>
+
     <div class="topic-status" id="topicStatus"></div>
-    <textarea class="topic-body" id="topicBody" placeholder="随机中文练习题将在这里显示..."></textarea>
+
+    <textarea class="topic-body" id="topicBody"
+      placeholder="随机中文练习题将在这里显示..."></textarea>
+
     <div class="topic-actions">
       <button class="btn-topic" id="btnRefreshTopic">AI 随机出题</button>
       <button class="btn-topic" id="btnOfflineTopic">离线题库</button>
-      <button class="btn-primary" id="btnConfirmTopic" style="padding:8px 20px;font-size:13px">确认题目</button>
+      <button class="btn-primary" id="btnConfirmTopic"
+        style="padding:8px 20px;font-size:13px">确认题目</button>
     </div>
   </div>
 
-  <!-- 你的翻译 -->
-  <div class="card translation-input-card">
+  <!-- 右侧：我的翻译 -->
+  <div class="card translation-input-card" id="translationCard">
     <div class="ti-header">
-      <h2>你的翻译</h2>
+      <h2>我的翻译</h2>
     </div>
+
     <div class="translation-lines" id="translationLines"></div>
 
-<div class="translation-line-tools">
-  <span class="translation-line-hint">
-    使用 M-Pencil 逐行书写英文，可添加更多行
-  </span>
-  <button type="button" class="btn-sm" id="btnAddTranslationLine">
-    + 添加一行
-  </button>
-</div>
+    <div class="translation-line-tools">
+      <span class="translation-line-hint">
+        使用 M-Pencil 逐行书写英文
+      </span>
+      <button type="button" class="btn-sm" id="btnAddTranslationLine">
+        + 添加一行
+      </button>
+    </div>
 
-<textarea
-  id="translationInput"
-  style="display:none"
-  aria-hidden="true"
-  tabindex="-1"
-></textarea>
+    <textarea id="translationInput"
+      style="display:none"
+      aria-hidden="true"
+      tabindex="-1"></textarea>
+
     <div class="ti-actions">
-      <span style="font-size:13px;color:var(--text-secondary)" id="wordCountDisplay">0 words</span>
+      <span style="font-size:13px;color:var(--text-secondary)"
+        id="wordCountDisplay">0 words</span>
       <div class="ti-right">
-        <button class="btn-answer" id="btnShowAnswer">直接看答案</button>
         <button class="btn-primary" id="btnSubmit">提交批改</button>
       </div>
     </div>
-    <div class="reference-answer" id="referenceAnswer">
-      <div class="ra-header">参考译文</div>
-      <div class="ra-body" id="referenceAnswerBody"></div>
-    </div>
+
     <div class="loading" id="reviewLoading">
       <div class="spinner"></div>
       <p>AI 正在逐句批改你的翻译...</p>
     </div>
   </div>
+
+  <!-- 左下：直接看答案 -->
+  <div class="card answer-card" id="answerCard">
+    <div class="answer-card-header">
+      <h2>参考译文</h2>
+      <button class="btn-answer" id="btnShowAnswer">
+        直接看答案
+      </button>
+    </div>
+
+    <div class="answer-placeholder" id="answerPlaceholder">
+      确认题目后，点击「直接看答案」查看参考译文。
+    </div>
+
+    <div class="reference-answer" id="referenceAnswer">
+      <div class="ra-header">参考译文</div>
+      <div class="ra-body" id="referenceAnswerBody"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 提示搜索 -->
 
   <!-- 提示搜索 -->
   <div class="card hint-card-full" id="hintCard">
@@ -1257,6 +1481,7 @@ const $translationLines = document.getElementById('translationLines');
 const $wordCountDisplay = document.getElementById('wordCountDisplay');
 const $referenceAnswer = document.getElementById('referenceAnswer');
 const $referenceAnswerBody = document.getElementById('referenceAnswerBody');
+const $answerPlaceholder = document.getElementById('answerPlaceholder');
 const $reviewLoading = document.getElementById('reviewLoading');
 // ==================== M-Pencil 多行手写输入 ====================
 
@@ -1348,7 +1573,7 @@ function setTranslationText(text) {
 
   $translationLines.innerHTML = '';
 
-  const total = Math.max(6, lines.length);
+  const total = Math.max(3, lines.length);
 
   for (let i = 0; i < total; i++) {
     addTranslationLine(lines[i] || '');
@@ -1388,7 +1613,7 @@ document.getElementById('btnAddTranslationLine')
     input.focus({ preventScroll: true });
   });
 
-// 页面初始化：创建6行输入框
+// 页面初始化：创建3行输入框
 setTranslationText('');
 
 // ==================== 翻译题目 ====================
@@ -1545,6 +1770,7 @@ function resetPracticeState() {
   $reviewCard.style.display = 'none';
   $reviewLoading.classList.remove('active');
   $referenceAnswer.classList.remove('active');
+  $answerPlaceholder.style.display = '';
   const $hintResult = document.getElementById('hintResult');
   $hintResult.classList.remove('active');
   $hintResult.innerHTML = '';
@@ -1687,7 +1913,17 @@ document.getElementById('btnShowAnswer').addEventListener('click', () => {
 function showReferenceAnswer(reference) {
   $referenceAnswerBody.innerHTML = esc(reference).replace(/\n/g, '<br>');
   $referenceAnswer.classList.add('active');
-  $referenceAnswer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  $answerPlaceholder.style.display = 'none';
+
+  // 横屏时不自动滚动，避免破坏三栏布局
+  if (!window.matchMedia(
+    '(orientation: landscape) and (min-width: 900px)'
+  ).matches) {
+    $referenceAnswer.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest'
+    });
+  }
 }
 
 // ==================== 批改系统 ====================
@@ -2167,6 +2403,7 @@ function viewTransFav(id) {
     $reviewCard.style.display = 'none';
   }
   $referenceAnswer.classList.remove('active');
+  $answerPlaceholder.style.display = '';
   closeModal();
   $reviewCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -2686,6 +2923,7 @@ document.getElementById('topicBody').addEventListener('input', () => {
     curTopic.chinese = text;
     curTopic.reference = null;
     $referenceAnswer.classList.remove('active');
+    $answerPlaceholder.style.display = '';
     $reviewCard.style.display = 'none';
     curReview = null;
     document.getElementById('topicStatus').textContent = '题目已修改，请重新确认';
